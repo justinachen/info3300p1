@@ -4,36 +4,63 @@
 <link href="https://fonts.googleapis.com/css?family=Alegreya|Alegreya+Sans" rel="stylesheet">
 <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/default.min.css">
 <script src="https://d3js.org/d3.v4.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js"></script>
+<!-- <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js"></script> -->
 <script src="http://d3js.org/topojson.v2.min.js"></script>
+<script src="https://d3js.org/d3-array.v1.min.js"></script>
+<script src="https://d3js.org/d3-geo.v1.min.js"></script>
+<script src="https://d3js.org/d3-geo-projection.v1.min.js"></script>
+
+
 <style>
 body { font-family: 'Calibri', sans-serif; }
 svg { border: solid #ccc 1px; }
-path.state { fill: none; stroke: black; stroke-width: .5; }
+path.state { stroke: black; stroke-width: .5; }
 .axisGreen path { stroke: #32CD32; stroke-width: 3px;}
 </style>
+
 </head>
 <body>
 
 <div id = "p1">
 <script>
+var p1 = d3.select("#p1");
+
+var svg = p1.append("svg")
+.attr("width", 600)
+.attr("height", 400);
+
+// var gs48 = [[0.98879, 0], [0, 0], [-0.050909, 0], [0, 0], [0.075528, 0]];
+
+// var projection = d3.geoModifiedStereographic(gs48, [95, -38])
+//       .scale(1000)
+//       .clipAngle(55)
+//       .center([-96.5563, 38.8675]);
+
+
+// var projection = d3.geoModifiedStereographicGs48();
+var projection = d3.geoModifiedStereographicGs48()
+
+
+var pathGenerator = d3.geoPath().projection(projection);
 
 // parse csv, modified from Feb 8 lecture
 
 function parseLine (line) {
 	return { 
 		Employer: line["Employer"],
-		Lat: line["Long"],
-		Long: line["Long"]
+		Lat: line["Lat"],
+		Long: line["Long"],
+		Sector: line ["Sector"]
 	};
 }
 
+// define these vars outside of the callback function
 
-// save entries to result
+var rawData, employersCount, nestedData, states;
+var condensed = [];
+var loc = [];
 
-var result;
 
-var employersCount;
 
 d3.csv("cornell_data.csv", parseLine, function (error, data) {
 	console.log("entered d3");
@@ -42,65 +69,40 @@ d3.csv("cornell_data.csv", parseLine, function (error, data) {
 
 	// count number of times employer repeated
 
-	var employersCount = d3.nest()
+	employersCount = d3.nest()
 	  .key(function(d) { return d.Employer; })
 	  .rollup(function(v) { return v.length; })
 	  .entries(rawData);
 
-
-	
-	console.log("done loading");
+	// group entries by employer
 	
 	nestedData = d3.nest()
 	.key(function (d) { return d.Employer; })
-	.entries(data);
-	
-	employerData = nestedData.map(function (employer) {
-		var result = { Employer: employer.key };
+	.entries(rawData);
+
+
+	// take only first entry for each employer 
+	for (var employer in nestedData){
+		temp = [];
+		var employerNestedData = nestedData[employer].values;
+
+		temp = [employerNestedData[0].Employer, parseFloat(employerNestedData[0].Lat), parseFloat(employerNestedData[0].Long), employerNestedData[0].Sector];
+
+		temp2 = [parseFloat(employerNestedData[0].Long), parseFloat(employerNestedData[0].Lat)]
+		condensed.push(temp);
+		loc.push(temp2);
+	};
+
+
+	d3.json("us.json", function (error, data) {
+		rawData = data;
 		
-		employer.values.forEach(function (d) {
-			if (pass) {					// count number of times employer is repeated
-				result.Count = result.Count + 1;
-			}
-			if (d.Variable == "Lat") {
-				result.Lat = d.value;
-			}
-			else if (d.Variable == "Long") {
-				result.Long = d.value;
-			}
-			else if (d.Variable == "Sector") {
-				result.Sector = d.value;
-			}
-		});
-		
-		return result;
+		states = topojson.feature(rawData, rawData.objects.states);
+
+		showMap();
 	});
+
 });
-
-
-
-
-
-var p1 = d3.select("#p1");
-
-var svg = p1.append("svg")
-.attr("width", 600)
-.attr("height", 400);
-// .attr("fill", "none");
-
-var projection = d3.geoAlbersUsa();
-var pathGenerator = d3.geoPath().projection(projection);
-
-var rawData;
-
-d3.json("us.json", function (error, data) {
-	rawData = data;
-	
-	states = topojson.feature(rawData, rawData.objects.states);
-	showMap();
-});
-
-var interestingPoints = [[-76.473503, 42.453449], [-122.124041, 47.628934], [-122.169503, 47.526993]];
 
 function showMap() {
 	// Create or modify paths for each country
@@ -115,42 +117,17 @@ function showMap() {
 		return pathGenerator(state);
 	});
 
-	var circles = svg.selectAll("circle").data(interestingPoints);
+	var circles = svg.selectAll("circle").data(loc);
 	circles.exit().remove()
-	circles.enter().append("circle").attr("r", 5)
+	circles.enter().append("circle").attr("r", 3)
 	.merge(circles)
 	.attr("cx", function(d){ return projection(d)[0]; })
 	.attr("cy", function(d){ return projection(d)[1]; })
 	.attr("fill-opacity", 0.4)
-	.attr("fill", "red")
+	.attr("fill", "red");
+};
 
-	// Text Labels and Lines
-	var labelCoords = [[-76, 46.5], [-122, 49.6], [-128, 47.5]];
-	var labelNames = ["Cornell University", "High School", "Home"]
-	var labelDetails = []
 
-	labelCoords.forEach (function (d, i) {
-		labelDetails.push([projection(d)[0], projection(d)[1], labelNames[i], projection(interestingPoints[i])[0], projection(interestingPoints[i])[1] ]);
-	});
-
-	labelDetails.forEach(function (d){
-		svg.append("text")
-		.attr("x", d[0])
-		.attr("y", d[1])
-		.style("font-size", "12px")
-		.attr("text-anchor", "middle")
-		.text(d[2]);
-
-		svg.append("line")
-		.attr("x1", d[0])
-		.attr("y1", d[1])
-		.attr("x2", d[3])
-		.attr("y2", d[4])
-		.style("stroke", "blue")
-		.style("stroke-width", "1");
-	});
-
-}
 	
 </script>
 </div>
