@@ -44,6 +44,11 @@ svg {
 path.state {
   fill: #D3D3D3; stroke: black; stroke-width: .5; 
 }
+path.nyc {
+  fill: #D3D3D3; stroke: black; stroke-width: .3; 
+}
+
+
 
 .axisGreen path {
  stroke: #32CD32; stroke-width: 3px;
@@ -61,9 +66,21 @@ path.state {
 <body>
 <div>
   <h1>Cornell vs. Berkeley Computer Science</h1>
-  <h3>Undergradute Employment Report 2013-2015</h3>
+  <h3>Undergraduate Employment Report 2013-2015</h3>
   <div class = "main" id = "cornell">
     <h2><img class="logo" src="logos/cornell_logo.png" alt="Cornell Logo" height="100" width="100" align="middle"> Cornell</h2>
+    <svg id = "svgcornell" width="575" height = "383">
+      <g transform = "translate (450) scale (0.65)">
+        <text x="50" y="30">Technology</text>
+        <text x="50" y="60">Other</text>
+        <text x="50" y="90">Financial Services</text>
+        <text x="50" y="120">Consulting</text>
+        <rect width="10" height="10" x="30" y="20" style="stroke:black; fill:red;"></rect>
+        <rect width="10" height="10" x="30" y="50" style="stroke:black; fill:blue;"></rect>
+        <rect width="10" height="10" x="30" y="80" style="stroke:black; fill:green;"></rect>
+        <rect width="10" height="10" x="30" y="110" style="stroke:black; fill:yellow;"></rect>
+      </g>
+    </svg>
   </div>
 
   <div class = "main" id = "berkeley">
@@ -81,9 +98,8 @@ var cornellState = d3.select("#cornellState");
 var berkeleyState = d3.select("#berkeleyState");
 
 // Cornell Map SVGs
-var svgcornell = cornell.append("svg")
-.attr("width", 575)
-.attr("height", 383);
+
+var svgcornell = d3.select("#svgcornell");
 
 cornell.append("br");
 cornell.append("br");
@@ -217,18 +233,81 @@ d3.csv("cornellDataFull.csv", parseLine, function (error, data) {
     d3.json("us.json", function (error, data) {
       rawData = data;    
       states = topojson.feature(rawData, rawData.objects.states);
+      console.log(states);
       showMap(svgberkeley, berkeleysector, berkeleyloc, berkeleynumStudents, berkeleycoords, false);
       showMap(svgcornell, cornellsector, cornellloc, cornellnumStudents, cornellcoords, true);
+      showCa(svgcornellCa);
+      showCa(svgberkeleyCa);
     });
 
   });
 
 });
 
+
+var nyData;
+var manhattan;
+
+// ny.json downloaded from https://github.com/dwillis/nyc-maps 
+d3.json("ny.json", function (error, data) {
+  nyData = data;
+  manhattan = nyData.features.filter(function(d) { return d.properties.BoroName == "Manhattan"; });  
+  showNy(svgcornellNy);
+  showNy(svgberkeleyNy);
+
+});
+
+function showNy(svg) {
+  // Create or modify paths for each country
+  
+  projection.fitExtent([[0,0], [svg.attr("width"), svg.attr("height")]], nyData)
+  pathGenerator = d3.geoPath().projection(projection)
+
+  var paths = svg.selectAll("path.nyc").data(manhattan);
+
+  paths.enter().append("path").attr("class", "nyc")
+  .merge(paths)
+  .attr("d", function(nyc){
+    return pathGenerator(nyc);
+  });
+
+  svg.selectAll("path")
+  .attr("transform", "translate(-120 -150) scale(2.5) ")
+};
+
+var caProjection = d3.geoMercator()
+  .scale(5000)
+  .center([-122.4194, 37.7749])
+  .translate([100, 250]);
+
+function showCa(svg) {
+  var caPathGenerator = d3.geoPath().projection(caProjection);
+
+  var paths = svg.selectAll("path.state").data(states.features);
+  console.log(paths);
+
+  paths.enter().append("path").attr("class", "state")
+  .merge(paths)
+  .attr("d", function(state){
+    return caPathGenerator(state);
+  });
+
+  var logoheight = 30;
+  var logowidth = 30;
+
+ svg.append("image")
+  .attr("href", "logos/cal_logo.png")
+  .attr("x", caProjection(berkeleycoords)[0]-logowidth/2)
+  .attr("y", caProjection(berkeleycoords)[1]-logoheight/2)
+  .attr("height", logoheight)
+  .attr("width", logowidth);
+
+};
+
 function showMap(svg, sector, loc, numStudents, coords, iscornell) {
 
-  projection.fitExtent([[0,0], [svg.attr("width"), svg.attr("height")]], states);
-  // projection.fitExtent([[100,100], [700,500]], states);
+  // projection.fitExtent([[0,0], , states);
+  projection.fitExtent([[0, 125], [svg.attr("width"), svg.attr("height")]], states);
 
   pathGenerator = d3.geoPath().projection(projection);
 

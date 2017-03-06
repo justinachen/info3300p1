@@ -1,0 +1,107 @@
+<html>
+<head>
+<title>P1: Justina Chen (jjc382) and Ayah Dweik</title>
+<link href="https://fonts.googleapis.com/css?family=Alegreya|Alegreya+Sans" rel="stylesheet">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/default.min.css">
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="http://d3js.org/topojson.v2.min.js"></script>
+<script src="https://d3js.org/d3-array.v1.min.js"></script>
+<script src="https://d3js.org/d3-geo.v1.min.js"></script>
+<script src="https://d3js.org/d3-geo-projection.v1.min.js"></script>
+
+<style>
+body {
+  width: 100%;
+  text-align:center;
+  font-family: 'Calibri', sans-serif;
+}
+
+.main {
+  padding: 20px;
+  margin: 0 auto;
+  display: inline-block;
+}
+.states{
+  margin: auto;
+  display: inline-block;
+}
+.logo{
+  margin-right: 25px;
+}
+.section{
+  width: 100%;
+  margin: auto;
+}
+
+svg { 
+  border: solid #ccc 1px; 
+}
+.stateSvg{
+  margin-left: 15px;
+  margin-right: 15px;
+}
+
+path.state {
+  fill: #D3D3D3; stroke: black; stroke-width: .5; 
+}
+
+.axisGreen path {
+ stroke: #32CD32; stroke-width: 3px;
+}
+
+.graticule {
+  fill: none;
+  stroke: #777;
+  stroke-width: .5px;
+  stroke-opacity: .5;
+}
+</style>
+
+</head>
+<body>
+<svg height = "500" width = "500"></svg>
+
+<script>
+
+var svg = d3.select("svg");
+// var projection = d3.geoAlbersUsa();
+var caProjection = d3.geoMercator()
+  .scale(10000)
+  .center([-122.2927387, 37.631258])
+  .translate([500 / 2, 500 / 2]);
+
+
+var rawData;
+var california;
+
+// ny.json downloaded from https://github.com/dwillis/nyc-maps 
+d3.json("us2.json", function (error, data) {
+  rawData = data;
+  showCa();
+
+});
+
+
+function showCa() {
+  caPathGenerator = d3.geoPath().projection(caProjection);
+
+  var paths = svg.selectAll("path.state").data(rawData.features);
+  console.log(paths);
+
+  paths.enter().append("path").attr("class", "state")
+  .merge(paths)
+  .attr("d", function(state){
+    return caPathGenerator(state);
+  });
+
+};
+
+
+</script>
+
+
+</div>
+
+
+</body>
+</html>
