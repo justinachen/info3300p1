@@ -15,7 +15,6 @@ body {
   text-align:center;
   font-family: 'Calibri', sans-serif;
 }
-
 .main {
   padding: 20px;
   margin: 0 auto;
@@ -32,13 +31,13 @@ body {
   width: 100%;
   margin: auto;
 }
+#desc{
+  margin-left: 75px;
+  margin-right: 75px;
+}
 
 svg { 
   border: solid #ccc 1px; 
-}
-.stateSvg{
-  margin-left: 15px;
-  margin-right: 15px;
 }
 
 path.state {
@@ -48,7 +47,17 @@ path.nyc {
   fill: #D3D3D3; stroke: black; stroke-width: .3; 
 }
 
+svg.cali{
+  border: solid orange 2px; 
+  margin-left: 15px;
+  margin-right: 15px;
+}
 
+svg.nyc{
+  border: solid #e7298a 2px;
+  margin-left: 15px;
+  margin-right: 15px;
+}
 
 .axisGreen path {
  stroke: #32CD32; stroke-width: 3px;
@@ -64,27 +73,48 @@ path.nyc {
 
 </head>
 <body>
+
+
 <div>
-  <h1>Cornell vs. Berkeley Computer Science</h1>
+  <h1><font color = "#b31b1b">Cornell</font> vs. <font color = "#003A70">Berkeley</font> Computer Science</h1>
   <h3>Undergraduate Employment Report 2013-2015</h3>
+  <div id = "desc">
+  <p>Where do undergraduate students in top computer science programs end up post-graduation? <font color = "#6a51a3"><b>90%</b></font> of Berkeley graduates reported being employed in the Pacific region, and 5% of Berkeley students ended up in the Northeast. In comparison, <font color = "#807dba"><b>53%</b></font> of Cornell graduates reported employment in the Pacific region, compared to <font color = "#9e9ac8"><b>38%</b></font> in the Northeast.</p>
+  </div>
+
   <div class = "main" id = "cornell">
     <h2><img class="logo" src="logos/cornell_logo.png" alt="Cornell Logo" height="100" width="100" align="middle"> Cornell</h2>
-    <svg id = "svgcornell" width="575" height = "383">
-      <g transform = "translate (450) scale (0.65)">
+    <p>116 students reported</p>
+    <svg id = "svgcornell" width="575" height = "500">
+      <g transform = "translate (300) scale (0.65)">
         <text x="50" y="30">Technology</text>
         <text x="50" y="60">Other</text>
         <text x="50" y="90">Financial Services</text>
         <text x="50" y="120">Consulting</text>
-        <rect width="10" height="10" x="30" y="20" style="stroke:black; fill:red;"></rect>
-        <rect width="10" height="10" x="30" y="50" style="stroke:black; fill:blue;"></rect>
-        <rect width="10" height="10" x="30" y="80" style="stroke:black; fill:green;"></rect>
-        <rect width="10" height="10" x="30" y="110" style="stroke:black; fill:yellow;"></rect>
+        <text x = "300" y="20" text-anchor="middle">Student Saturation by Region</text>
+        <text x= "225" y="60" text-anchor="middle">0%</text>
+        <text x= "375" y="60" text-anchor="middle">100%</text>
+        <rect width="10" height="10" x="30" y="20" style="stroke:black; stroke-width: .5px; fill:red;"></rect>
+        <rect width="10" height="10" x="30" y="50" style="stroke:black; stroke-width: .5px;fill:blue;"></rect>
+        <rect width="10" height="10" x="30" y="80" style="stroke:black; stroke-width: .5px;fill:green;"></rect>
+        <rect width="10" height="10" x="30" y="110" style="stroke:black; stroke-width: .5px; fill:yellow;"></rect>
+        <rect width="150" height="15" x="225" y="25" style="stroke:black; stroke-width: .5px; fill:url(#saturationGradient);"></rect>
+        <rect width="17" height="2" x="225" y="100" style="stroke:red; stroke-width: .5px; fill:red"></rect>
+        <text x="225" y = "120">One Student</text>
       </g>
+
+      <defs>
+        <linearGradient id="saturationGradient">
+            <stop offset="5%"  stop-color="#efedf5"/>
+            <stop offset="95%" stop-color="#6a51a3"/>
+        </linearGradient>
+    </defs>
     </svg>
   </div>
 
   <div class = "main" id = "berkeley">
     <h2><img class="logo" src="logos/cal_logo.png" alt="Berkeley Logo" height="100" width="auto" align="middle"> Berkeley</h2>
+    <p>201 students reported</p>
   </div>
 
   <div class = "states" id = "cornellState"></div>
@@ -98,7 +128,6 @@ var cornellState = d3.select("#cornellState");
 var berkeleyState = d3.select("#berkeleyState");
 
 // Cornell Map SVGs
-
 var svgcornell = d3.select("#svgcornell");
 
 cornell.append("br");
@@ -107,17 +136,17 @@ cornell.append("br");
 var svgcornellCa = cornell.append("svg")
 .attr("width", 250)
 .attr("height", 400)
-.attr("class", "stateSvg"); 
+.attr("class", "cali"); 
 
 var svgcornellNy = cornell.append("svg")
 .attr("width", 250)
 .attr("height", 400)
-.attr("class", "stateSvg"); 
+.attr("class", "nyc"); 
 
 // Berkeley Map SVGs
 var svgberkeley = berkeley.append("svg")
 .attr("width", 575)
-.attr("height", 383);
+.attr("height", 500);
 
 berkeley.append("br");
 berkeley.append("br");
@@ -125,27 +154,21 @@ berkeley.append("br");
 var svgberkeleyCa = berkeley.append("svg")
 .attr("width", 250)
 .attr("height", 400)
-.attr("class", "stateSvg"); 
+.attr("class", "cali"); 
 
 var svgberkeleyNy = berkeley.append("svg")
 .attr("width", 250)
 .attr("height", 400)
-.attr("class", "stateSvg"); 
-
-var projection = d3.geoAlbersUsa(); 
-
-var graticule = d3.geoGraticule();
-
-var pathGenerator = d3.geoPath().projection(projection);
+.attr("class", "nyc");  
 
 // parse csv, modified from Feb 8 lecture
-
 function parseLine (line) {
   return { 
     Employer: line["Employer"],
     Lat: line["Lat"],
     Long: line["Long"],
-    Sector: line ["Sector"]
+    Sector: line ["Sector"],
+    State: line ["State/Country"]
   };
 }
 
@@ -162,23 +185,26 @@ var cornellcoords=[-76.4735, 42.4534];
 var berkeleycoords=[-122.2727, 37.8716];
 
 
+var northeast, southeast, southwest, midwest, rockymountain, pacific;
+var rawData;
+
+
  // ************************************************************************************************
  // ************************************     CORNELL     *******************************************
  // ************************************************************************************************
 
-d3.csv("cornellDataFull.csv", parseLine, function (error, data) {
-  console.log("entered d3");
+d3.csv("cornell_data.csv", parseLine, function (error, data) {
 
   var cornellData = data;
 
   // count number of times employer repeated
-  employersCount = d3.nest()
+  var employersCount = d3.nest()
     .key(function(d) { return d.Employer; })
     .rollup(function(v) { return v.length; })
     .entries(cornellData);
 
   // group entries by employer
-  nestedData = d3.nest()
+  var nestedData = d3.nest()
   .key(function (d) { return d.Employer; })
   .entries(cornellData);
 
@@ -194,56 +220,65 @@ d3.csv("cornellDataFull.csv", parseLine, function (error, data) {
   // create array of number of students per employer
   for (var employer in employersCount){
     cornellnumStudents.push(employersCount[employer].value)
-  }
+  };
 
  // ************************************************************************************************
  // ************************************     BERKELEY    *******************************************
  // ************************************************************************************************
-    d3.csv("berkeleyDataFull.csv", parseLine, function (error, data) {
-    console.log("entered d3");
 
-    berkeleyData = data;
+    d3.csv("berkeley_data.csv", parseLine, function (error, data) {
 
-    // count number of times employer repeated
-    employersCount = d3.nest()
-      .key(function(d) { return d.Employer; })
-      .rollup(function(v) { return v.length; })
+      berkeleyData = data;
+
+      // count number of times employer repeated
+      employersCount = d3.nest()
+        .key(function(d) { return d.Employer; })
+        .rollup(function(v) { return v.length; })
+        .entries(berkeleyData);
+
+      // group entries by employer
+      nestedData = d3.nest()
+      .key(function (d) { return d.Employer; })
       .entries(berkeleyData);
 
-    // group entries by employer
-    nestedData = d3.nest()
-    .key(function (d) { return d.Employer; })
-    .entries(berkeleyData);
 
+      // take only first entry for each employer 
+      for (var employer in nestedData){
+        var employerNestedData = nestedData[employer].values;
+        var sec = [employerNestedData[0].Sector];
+          berkeleysector.push(sec);
+        var latlong = [parseFloat(employerNestedData[0].Long), parseFloat(employerNestedData[0].Lat)]
+          berkeleyloc.push(latlong);
+      };
 
-    // take only first entry for each employer 
-    for (var employer in nestedData){
-      var employerNestedData = nestedData[employer].values;
-      var sec = [employerNestedData[0].Sector];
-        berkeleysector.push(sec);
-      var latlong = [parseFloat(employerNestedData[0].Long), parseFloat(employerNestedData[0].Lat)]
-        berkeleyloc.push(latlong);
-    };
+      // create array of number of students per employer
+      for (var employer in employersCount){
+        berkeleynumStudents.push(employersCount[employer].value)
+      }
 
-    // create array of number of students per employer
-    for (var employer in employersCount){
-      berkeleynumStudents.push(employersCount[employer].value)
-    }
+      d3.json("us.json", function (error, data) {
+      rawData = data;
 
-    d3.json("us.json", function (error, data) {
-      rawData = data;    
-      states = topojson.feature(rawData, rawData.objects.states);
-      console.log(states);
-      showMap(svgberkeley, berkeleysector, berkeleyloc, berkeleynumStudents, berkeleycoords, false);
-      showMap(svgcornell, cornellsector, cornellloc, cornellnumStudents, cornellcoords, true);
-      showCa(svgcornellCa);
-      showCa(svgberkeleyCa);
+      northeast = rawData.features.filter(function(d) { return d.properties.NAME == "Maine"|| d.properties.NAME == "Vermont" || d.properties.NAME == "New York" || d.properties.NAME == "Pennsylvania" || d.properties.NAME == "New Jersey" || d.properties.NAME == "Massachusetts" || d.properties.NAME == "Connecticut" || d.properties.NAME == "Rhode Island" || d.properties.NAME == "New Hampshire"; });
+      southeast = rawData.features.filter(function(d) { return d.properties.NAME == "Delaware"|| d.properties.NAME == "Maryland" || d.properties.NAME == "West Virginia" || d.properties.NAME == "Kentucky" || d.properties.NAME == "Virginia" || d.properties.NAME == "Tennessee" || d.properties.NAME == "North Carolina" || d.properties.NAME == "South Carolina" || d.properties.NAME == "Georgia" || d.properties.NAME == "Alabama" || d.properties.NAME == "Mississippi" || d.properties.NAME == "Louisiana" || d.properties.NAME == "Arkansas" || d.properties.NAME == "Florida"; });
+      midwest = rawData.features.filter(function(d) { return d.properties.NAME == "Ohio"|| d.properties.NAME == "Michigan" || d.properties.NAME == "Indiana" || d.properties.NAME == "Illinois" || d.properties.NAME == "Wisconsin" || d.properties.NAME == "Iowa" || d.properties.NAME == "Missouri" || d.properties.NAME == "Kansas" || d.properties.NAME == "Nebraska" || d.properties.NAME == "South Dakota" || d.properties.NAME == "North Dakota" || d.properties.NAME == "Minnesota"; });
+      southwest = rawData.features.filter(function(d) { return d.properties.NAME == "Arizona"|| d.properties.NAME == "Texas" || d.properties.NAME == "New Mexico" || d.properties.NAME == "Oklahoma"; });
+      rockymountain = rawData.features.filter(function(d) { return d.properties.NAME == "Montana"|| d.properties.NAME == "Wyoming" || d.properties.NAME == "Nevada" || d.properties.NAME == "Idaho" || d.properties.NAME == "Utah" || d.properties.NAME == "Colorado"; });
+      pacific = rawData.features.filter(function(d) { return d.properties.NAME == "California"|| d.properties.NAME == "Oregon" || d.properties.NAME == "Washington"; });
+
+        
+        showMap(svgberkeley, berkeleysector, berkeleyloc, berkeleynumStudents, berkeleycoords, false);
+        showMap(svgcornell, cornellsector, cornellloc, cornellnumStudents, cornellcoords, true);
+        showCa(svgcornellCa, cornellsector, cornellloc, cornellnumStudents);
+        showCa(svgberkeleyCa, berkeleysector, berkeleyloc, berkeleynumStudents);
     });
-
   });
-
 });
 
+
+//**************************************** //
+//**************** NY Map **************** //
+//**************************************** //
 
 var nyData;
 var manhattan;
@@ -251,17 +286,19 @@ var manhattan;
 // ny.json downloaded from https://github.com/dwillis/nyc-maps 
 d3.json("ny.json", function (error, data) {
   nyData = data;
-  manhattan = nyData.features.filter(function(d) { return d.properties.BoroName == "Manhattan"; });  
-  showNy(svgcornellNy);
-  showNy(svgberkeleyNy);
+  // manhattan = nyData.features.filter(function(d) { return d.properties.BoroName == "Manhattan"; });  
+  manhattan = nyData.features;
+  showNy(svgcornellNy, cornellsector, cornellloc, cornellnumStudents);
+  showNy(svgberkeleyNy, berkeleysector, berkeleyloc, berkeleynumStudents);
 
 });
 
-function showNy(svg) {
-  // Create or modify paths for each country
-  
-  projection.fitExtent([[0,0], [svg.attr("width"), svg.attr("height")]], nyData)
-  pathGenerator = d3.geoPath().projection(projection)
+var nyProjection = d3.geoAlbersUsa();
+
+function showNy(svg, sector, loc, numStudents) {
+
+  nyProjection.fitExtent([[0,0], [svg.attr("width"), svg.attr("height")]], nyData)
+  pathGenerator = d3.geoPath().projection(nyProjection)
 
   var paths = svg.selectAll("path.nyc").data(manhattan);
 
@@ -271,20 +308,73 @@ function showNy(svg) {
     return pathGenerator(nyc);
   });
 
+  svg.append("text")
+    .text("NYC Metro")
+    .attr("x", "20")
+    .attr("y", "25");
+
+
+  // add data
+  var bars = svg.selectAll("line").data(loc);
+  bars.exit().remove()
+  bars.enter().append("line")
+  .style("stroke-width", "2.5")
+  .style("stroke", function(d, i){ 
+    if (sector[i] == "Technology"){
+      return "red";
+      }
+    else if (sector[i] == "Other"){
+      return "blue";
+    }
+    else if (sector[i] == "Financial Services"){
+      return "green";
+    }
+    else if (sector[i] == "Consulting"){
+      return "yellow";
+    }
+  })
+  .style("stroke-opacity", "0.4")
+  .merge(bars)
+  .attr("x1", function(d){ 
+    if (nyProjection(d) != null){
+    return nyProjection(d)[0];  }
+    })
+  .attr("y1", function(d){    
+    if (nyProjection(d) != null){
+    return nyProjection(d)[1];  }
+    })
+  .attr("x2", function(d){ 
+    if (nyProjection(d) != null){
+    return nyProjection(d)[0];  }
+    })
+  .attr("y2", function(d, i){
+    if (nyProjection(d) != null){
+    return nyProjection(d)[1] - numStudents[i]*15; }
+    })
+
+  // center Manhattan
   svg.selectAll("path")
-  .attr("transform", "translate(-120 -150) scale(2.5) ")
+  .attr("transform", "translate(-200 -200) scale(3) ")
+  svg.selectAll("line")
+  .attr("transform", "translate(-200 -200) scale(3) ")
+
 };
 
+
+
+//**************************************** //
+//**************** Cali Map ************** //
+//**************************************** //
+
 var caProjection = d3.geoMercator()
-  .scale(5000)
+  .scale(6500)
   .center([-122.4194, 37.7749])
   .translate([100, 250]);
 
-function showCa(svg) {
+function showCa(svg, sector, loc, numStudents) {
   var caPathGenerator = d3.geoPath().projection(caProjection);
 
-  var paths = svg.selectAll("path.state").data(states.features);
-  console.log(paths);
+  var paths = svg.selectAll("path.state").data(pacific);
 
   paths.enter().append("path").attr("class", "state")
   .merge(paths)
@@ -295,27 +385,104 @@ function showCa(svg) {
   var logoheight = 30;
   var logowidth = 30;
 
- svg.append("image")
-  .attr("href", "logos/cal_logo.png")
-  .attr("x", caProjection(berkeleycoords)[0]-logowidth/2)
-  .attr("y", caProjection(berkeleycoords)[1]-logoheight/2)
-  .attr("height", logoheight)
-  .attr("width", logowidth);
+  svg.append("image")
+    .attr("href", "logos/cal_logo.png")
+    .attr("x", caProjection(berkeleycoords)[0]-logowidth/2)
+    .attr("y", caProjection(berkeleycoords)[1]-logoheight/2)
+    .attr("height", logoheight)
+    .attr("width", logowidth);
 
+
+  svg.append("text")
+    .text("SF Bay Area")
+    .attr("x", "20")
+    .attr("y", "25");
+
+  var bars = svg.selectAll("line").data(loc);
+    bars.exit().remove()
+    bars.enter().append("line")
+    .style("stroke-width", "6")
+    .style("stroke", function(d, i){ 
+      if (sector[i] == "Technology"){
+        return "red";
+        }
+      else if (sector[i] == "Other"){
+        return "blue";
+      }
+      else if (sector[i] == "Financial Services"){
+        return "green";
+      }
+      else if (sector[i] == "Consulting"){
+        return "yellow";
+      }
+    })
+    .style("stroke-opacity", "0.4")
+    .merge(bars)
+    .attr("x1", function(d){ 
+      if (caProjection(d) != null){
+      return caProjection(d)[0];  }
+      })
+    .attr("y1", function(d){    
+      if (caProjection(d) != null){
+      return caProjection(d)[1];  }
+      })
+    .attr("x2", function(d){ 
+      if (caProjection(d) != null){
+      return caProjection(d)[0];  }
+      })
+    .attr("y2", function(d, i){
+      if (caProjection(d) != null){
+      return caProjection(d)[1] - numStudents[i]*24; }
+      })
 };
 
+//**************************************** //
+//**************** Main Map ************** //
+//**************************************** //
+
+var projection = d3.geoAlbersUsa(); 
+var graticule = d3.geoGraticule();
+var pathGenerator = d3.geoPath().projection(projection);
+
 function showMap(svg, sector, loc, numStudents, coords, iscornell) {
+  projection.fitExtent([[0,125], [svg.attr("width"), svg.attr("height")]], rawData);
+  pathGenerator = d3.geoPath().projection(projection)
+  var regions = [northeast, southwest, southeast, midwest, rockymountain, pacific];
+  var paths = [];
 
-  // projection.fitExtent([[0,0], , states);
-  projection.fitExtent([[0, 125], [svg.attr("width"), svg.attr("height")]], states);
+  var regionStrings = ["northeast", "southwest", "southeast", "midwest", "rockymountain", "pacific"];
 
-  pathGenerator = d3.geoPath().projection(projection);
+  if (iscornell) { 
+    var logo = "logos/cornell_logo.png";
+    var colors = ['#bcbddc','#efedf5','#efedf5','#efedf5','#efedf5','#9e9ac8'];
+    } else { 
+      var logo = "logos/cal_logo.png"; 
+      var colors = ['#efedf5','#efedf5','#efedf5','#efedf5','#efedf5','#807dba'];
+    };
 
-  var paths = svg.selectAll("path.state").data(states.features);
-  paths.enter().append("path").attr("class", "state")
-  .merge(paths)
-  .attr("d", function(state){
-    return pathGenerator(state);
+
+  var saturationScale = d3.scaleOrdinal()
+  .domain(regionStrings)
+  .range(colors);
+  
+
+  regions.forEach(function(d){
+    paths.push(svg.selectAll("path.state").data(d));
+  });
+  
+  paths.forEach(function(path){
+    path.enter().append("path").attr("class", "state").style("fill", function(d, i){ 
+      if(colorState(d,northeast)){ return saturationScale("northeast");
+      } else if(colorState(d,southeast)) { return saturationScale("southeast");
+      } else if(colorState(d,southwest)) { return saturationScale("southwest");
+      } else if(colorState(d,midwest)) { return saturationScale("midwest");
+      } else if(colorState(d,rockymountain)) { return saturationScale("rockymountain");
+      } else if(colorState(d,pacific)) { return saturationScale("pacific"); }
+    })
+    .merge(path)
+    .attr("d", function(state){
+      return pathGenerator(state);
+    });
   });
 
   svg.append("path")
@@ -323,9 +490,7 @@ function showMap(svg, sector, loc, numStudents, coords, iscornell) {
     .attr("class", "graticule")
     .attr("d", pathGenerator);
 
-  if (iscornell) { var logo = "logos/cornell_logo.png";}
-  else{ var logo = "logos/cal_logo.png"; };
-
+  // add school logo
   var logowidth = 20;
   var logoheight = 20;
 
@@ -336,6 +501,28 @@ function showMap(svg, sector, loc, numStudents, coords, iscornell) {
     .attr("height", logoheight)
     .attr("width", logowidth);
 
+  // add zoom outline
+  svg.append("rect")
+  .attr("width", "15")
+  .attr("height", "25")
+  .attr("x", projection(berkeleycoords)[0]-logowidth/2)
+  .attr("y", projection(berkeleycoords)[1]-logoheight/2)
+  .style("stroke-width", "2")
+  .style("stroke", "orange")
+  .style("fill", "none");
+
+
+var manhattancoords =[-74.011028, 40.72125]
+  svg.append("rect")
+  .attr("width", "10")
+  .attr("height", "15")
+  .attr("x", projection(manhattancoords)[0]-10/2)
+  .attr("y", projection(manhattancoords)[1]-15/2)
+  .style("stroke", "#e7298a")
+  .style("stroke-width", "2")
+  .style("fill", "none");
+
+// add student data
   var bars = svg.selectAll("line").data(loc);
   bars.exit().remove()
   bars.enter().append("line")
@@ -354,7 +541,7 @@ function showMap(svg, sector, loc, numStudents, coords, iscornell) {
       return "yellow";
     }
   })
-  .style("stroke-opacity", "0.3")
+  .style("stroke-opacity", "0.4")
   .merge(bars)
   .attr("x1", function(d){ 
     if (projection(d) != null){
@@ -370,23 +557,27 @@ function showMap(svg, sector, loc, numStudents, coords, iscornell) {
     })
   .attr("y2", function(d, i){
     if (projection(d) != null){
-    return projection(d)[1] - numStudents[i]*15; }
+    return projection(d)[1] - numStudents[i]*11; }
     })
+
 };
 
 
-
-// var caProjection = d3.geoMercator()
-//   .scale(100000)
-//   .center([-122.2927387, 37.631258])
-//   .translate([width / 2, height / 2]);
+function colorState(feature, region) {
+  // Check if state is in region and which what it is in
+  var found = false
+  region.forEach(function(state){
+    if(state.properties.NAME == feature.properties.NAME){
+      found = true;
+      return true;
+    }
+  });
+  if(found){ return true; } else { return false; }
+}
 
 
 </script>
 
-
 </div>
-
-
 </body>
 </html>
